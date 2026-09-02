@@ -6,9 +6,7 @@ pipeline {
         REGION = 'us-central1'
         REPO_NAME = 'website-repo'
         IMAGE_NAME = 'pk-website'
-        // This creates a unique tag for every build (e.g., v1, v2)
         IMAGE_TAG = "v${env.BUILD_ID}" 
-        // The full path to your Google Artifact Registry
         GAR_PATH = "${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPO_NAME}/${IMAGE_NAME}"
     }
 
@@ -25,6 +23,16 @@ pipeline {
                 echo "Pushing Image to GAR..."
                 sh "docker push ${GAR_PATH}:${IMAGE_TAG}"
                 sh "docker push ${GAR_PATH}:latest"
+            }
+        }
+        
+        stage('Deploy to GKE') {
+            steps {
+                echo "Deploying to Kubernetes..."
+                sh "kubectl apply -f deployment.yaml"
+                sh "kubectl apply -f service.yaml"
+                // This forces K8s to pull the newest image we just built
+                sh "kubectl rollout restart deployment/website-deployment"
             }
         }
     }
