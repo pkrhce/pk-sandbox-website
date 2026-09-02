@@ -29,10 +29,9 @@ pipeline {
         stage('Deploy to GKE') {
             steps {
                 echo "Deploying to Kubernetes..."
-                sh "kubectl apply -f deployment.yaml"
-                sh "kubectl apply -f service.yaml"
-                // This forces K8s to pull the newest image we just built
-                sh "kubectl rollout restart deployment/website-deployment"
+                sh "/usr/bin/kubectl apply -f deployment.yaml"
+                sh "/usr/bin/kubectl apply -f service.yaml"
+                sh "/usr/bin/kubectl rollout restart deployment/website-deployment"
             }
         }
     }
